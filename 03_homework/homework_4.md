@@ -13,6 +13,9 @@ SELECT
 product_name || ', ' || product_size|| ' (' || product_qty_type || ')'
 FROM product
 ```
+SELECT 
+product_name || ', ' || coalesce(product_size,'')|| ' (' || coalesce(product_qty_type, 'unit') || ')'
+FROM product
 
 But wait! The product table has some bad data (a few NULL values). 
 Find the NULLs and then using COALESCE, replace the NULL with a blank for the first problem, and 'unit' for the second problem. 
@@ -25,10 +28,24 @@ Find the NULLs and then using COALESCE, replace the NULL with a blank for the fi
 You can either display all rows in the customer_purchases table, with the counter changing on each new market date for each customer, or select only the unique market dates per customer (without purchase details) and number those visits. 
 **HINT**: One of these approaches uses ROW_NUMBER() and one uses DENSE_RANK().
 
+	SELECT DISTINCT
+	customer_id
+	,market_date
+	,dense_rank() OVER (PARTITION by customer_id order by market_date ASC) as visit_number
+	from customer_purchases
+
 2. Reverse the numbering of the query from a part so each customer’s most recent visit is labeled 1, then write another query that uses this one as a subquery (or temp table) and filters the results to only the customer’s most recent visit.
+
+SELECT * FROM (
+SELECT DISTINCT customer_id, market_date, dense_rank() OVER (PARTITION by customer_id ORDER BY market_date DESC) AS visit_number 
+FROM customer_purchases
+) x
+WHERE x.visit_number = 1
 
 3. Using a COUNT() window function, include a value along with each row of the customer_purchases table that indicates how many different times that customer has purchased that product_id.
 
+SELECT DISTINCT customer_id, product_id, count(*) OVER (PARTITION by customer_id ORDER BY product_id) AS number_product_purchased 
+FROM customer_purchases
 
 # String manipulations
 1. Some product names in the product table have descriptions like "Jar" or "Organic". These are separated from the product name with a hyphen. Create a column using SUBSTR (and a couple of other commands) that captures these, but is otherwise NULL. Remove any trailing or leading whitespaces. Don't just use a case statement for each product! 
