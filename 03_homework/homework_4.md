@@ -56,7 +56,63 @@ FROM customer_purchases
 
 **HINT**: you might need to use INSTR(product_name,'-') to find the hyphens. INSTR will help split the column. 
 
+SELECT rtrim(ltrim(product_name)) as product_name, 
+CASE WHEN instr(product_name,'-') > 0 THEN
+	rtrim(LTRIM(substr(product_name,instr(product_name,'-')+1,length(product_name))))
+	ELSE NULL
+	END as description
+FROM product 
+
 # UNION
 1. Using a UNION, write a query that displays the market dates with the highest and lowest total sales.
 
 **HINT**: There are a possibly a few ways to do this query, but if you're struggling, try the following: 1) Create a CTE/Temp Table to find sales values grouped dates; 2) Create another CTE/Temp table with a rank windowed function on the previous query to create "best day" and "worst day"; 3) Query the second temp table twice, once for the best day, once for the worst day, with a UNION binding them. 
+
+-- 1
+WITH sales_grouped_date AS (
+
+    SELECT 
+        market_date,
+        SUM(quantity * cost_to_customer_per_qty) AS total_sales
+    FROM 
+        customer_purchases
+    GROUP BY 
+        market_date
+),
+
+-- 2
+rank_sales AS (
+    SELECT 
+        market_date,
+        total_sales,
+        ROW_NUMBER() OVER (ORDER BY total_sales DESC) AS r_max,
+        ROW_NUMBER() OVER (ORDER BY total_sales ASC) AS r_min
+    FROM 
+        sales_grouped_date
+)
+
+-- 3
+SELECT 
+    market_date,
+    total_sales,
+    'best day' AS type
+FROM 
+    rank_sales
+WHERE 
+    r_max = 1
+
+UNION
+
+SELECT
+    market_date,
+    total_sales,
+    'worst day' AS type
+FROM 
+    rank_sales
+WHERE 
+    r_min = 1;
+
+
+
+
+
