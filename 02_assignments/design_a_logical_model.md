@@ -5,8 +5,12 @@ Create a logical model for a small bookstore. 📚
 
 At the minimum it should have employee, order, sales, customer, and book entities (tables). Determine sensible column and table design based on what you know about these concepts. Keep it simple, but work out sensible relationships to keep tables reasonably sized. Include a date table. There are several tools online you can use, I'd recommend [_Draw.io_](https://www.drawio.com/) or [_LucidChart_](https://www.lucidchart.com/pages/).
 
+![alt text](Tetiana_Nurkanova_logical_model.png)
+
 ## Question 2
 We want to create employee shifts, splitting up the day into morning and evening. Add this to the ERD.
+
+![alt text](Tetiana_Nurkanova_logical_model_bookstore_2.png)
 
 ## Question 3
 The store wants to keep customer addresses. Propose two architectures for the CUSTOMER_ADDRESS table, one that will retain changes, and another that will overwrite. Which is type 1, which is type 2?
@@ -17,6 +21,32 @@ Bonus: Are there privacy implications to this, why or why not?
 ```
 Your answer...
 ```
+Two architectures for the Customer_Address table:
+
+1. Type 1 (Slowly Changing Dimension)- Retain Changes
+
+Customer address table will store the boolean value if it is active or not and date added.
+
+address_id (PK)
+customer_id (FK)
+city
+province
+country
+postal_code
+date_added
+active (Boolean)
+
+2. Type 2 (Slowly Changing Dimension) - overwrite changes
+
+Customer address table will store only active customer address
+
+address_id (PK)
+customer_id (FK)
+city
+province
+country
+postal_code
+
 
 ## Question 4
 Review the AdventureWorks Schema [here](https://i.stack.imgur.com/LMu4W.gif)
@@ -25,6 +55,9 @@ Highlight at least two differences between it and your ERD. Would you change any
 ```
 Your answer...
 ```
+AdventureWorks schema is a complex schema that has detailed data and relationships between highly orginized data tables. It has a lot of covered business features, including HR, production and other areas.
+
+It definetely can be used as sample to expand my simple ERD.
 
 # Criteria
 
